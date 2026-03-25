@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4 class="mb-3">Reportería</h4>
+<div class="card shadow-sm mb-3"><div class="card-body">
+<form method="get" class="row g-2">
+  <div class="col-md-3"><label class="form-label">Inicio</label><input type="date" name="start" class="form-control" value="{{ filters.start }}"></div>
+  <div class="col-md-3"><label class="form-label">Fin</label><input type="date" name="end" class="form-control" value="{{ filters.end }}"></div>
+  <div class="col-md-4"><label class="form-label">Oficina</label><select name="office" class="form-select"><option value="">Todas</option>{% for o in offices %}<option value="{{ o.id }}" {% if filters.office == o.id|stringformat:'s' %}selected{% endif %}>{{ o.name }}</option>{% endfor %}</select></div>
+  <div class="col-md-2 d-grid"><label class="form-label">&nbsp;</label><button class="btn btn-dark">Filtrar</button></div>
+</form>
+</div></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3"><div class="card"><div class="card-body"><small>Horas trabajadas</small><h4>{{ summary.worked_hours }}</h4></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><small>Horas extra</small><h4>{{ summary.overtime_hours }}</h4></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><small>Pago regular</small><h4>${{ summary.regular_pay }}</h4></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><small>Pago extra</small><h4>${{ summary.overtime_pay }}</h4></div></div></div>
+</div>
+
+<a class="btn btn-success mb-3" href="/reports/export-csv/">Exportar CSV</a>
+<div class="card shadow-sm"><div class="card-body"><div class="table-responsive">
+<table class="table table-sm table-striped"><thead><tr><th>Empleado</th><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Extras</th><th>Pago</th></tr></thead><tbody>
+{% for r in records %}
+<tr><td>{{ r.employee.user.get_full_name }}</td><td>{{ r.clock_in|date:'d/m/Y' }}</td><td>{{ r.clock_in|date:'H:i' }}</td><td>{% if r.clock_out %}{{ r.clock_out|date:'H:i' }}{% else %}Pendiente{% endif %}</td><td>{{ r.worked_hours_decimal }}</td><td>{{ r.overtime_hours_decimal }}</td><td>${{ r.regular_pay|add:r.overtime_pay }}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+{% endblock %}

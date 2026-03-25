@@ -1,0 +1,35 @@
+services:
+  web:
+    build: .
+    container_name: attendance_web
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "1"
+      DJANGO_SECRET_KEY: change-me
+      POSTGRES_DB: attendance_db
+      POSTGRES_USER: attendance_user
+      POSTGRES_PASSWORD: attendance_password
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      TIME_ZONE: UTC
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    container_name: attendance_db
+    environment:
+      POSTGRES_DB: attendance_db
+      POSTGRES_USER: attendance_user
+      POSTGRES_PASSWORD: attendance_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

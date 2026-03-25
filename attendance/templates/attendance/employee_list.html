@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4>Personal</h4>
+  <a href="/employees/create/" class="btn btn-primary">Nuevo empleado</a>
+</div>
+<div class="card shadow-sm"><div class="card-body">
+<div class="table-responsive">
+<table class="table table-hover"><thead><tr><th>Código</th><th>Nombre</th><th>Oficina</th><th>Cargo</th><th>Tarifa/h</th><th>Activo</th></tr></thead><tbody>
+{% for e in employees %}
+<tr><td>{{ e.employee_code }}</td><td>{{ e.user.get_full_name }}</td><td>{{ e.office.name }}</td><td>{{ e.position }}</td><td>${{ e.hourly_rate }}</td><td>{% if e.is_active %}<span class="badge text-bg-success">Sí</span>{% else %}<span class="badge text-bg-secondary">No</span>{% endif %}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+{% endblock %}
