@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><h6>Total horas</h6><p class="display-6">{{ total_worked_hours }}</p></div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><h6>Horas extra</h6><p class="display-6">{{ total_overtime_hours }}</p></div></div></div>
+  <div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
+    <h5 class="mb-3">Mi timbraje</h5>
+    {% if employee %}
+      {% if open_record %}
+      <p class="mb-2">Entrada abierta desde <strong>{{ open_record.clock_in|date:'d/m/Y H:i' }}</strong></p>
+      <form method="post" action="/clock-out/{{ open_record.id }}/">{% csrf_token %}<button class="btn btn-danger">Marcar salida</button></form>
+      {% else %}
+      <form method="post" action="/clock-in/">
+        {% csrf_token %}
+        <div class="row g-2">
+          <div class="col-md-6">{{ clock_in_form.shift.label_tag }} {{ clock_in_form.shift }}</div>
+          <div class="col-md-6">{{ clock_in_form.notes.label_tag }} {{ clock_in_form.notes }}</div>
+        </div>
+        <button class="btn btn-success mt-2">Marcar entrada</button>
+      </form>
+      {% endif %}
+    {% else %}
+    <div class="alert alert-warning mb-0">Tu usuario no está asociado a un empleado.</div>
+    {% endif %}
+  </div></div></div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5>Últimos timbrajes</h5>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead><tr><th>Empleado</th><th>Oficina</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Extras</th></tr></thead>
+        <tbody>
+        {% for r in recent_records %}
+          <tr>
+            <td>{{ r.employee.user.get_full_name|default:r.employee.user.username }}</td>
+            <td>{{ r.employee.office.name }}</td>
+            <td>{{ r.clock_in|date:'d/m/Y H:i' }}</td>
+            <td>{% if r.clock_out %}{{ r.clock_out|date:'d/m/Y H:i' }}{% else %}<span class="badge text-bg-warning">Abierto</span>{% endif %}</td>
+            <td>{{ r.worked_hours_decimal }}</td>
+            <td>{{ r.overtime_hours_decimal }}</td>
+          </tr>
+        {% empty %}<tr><td colspan="6" class="text-center">Sin registros</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
